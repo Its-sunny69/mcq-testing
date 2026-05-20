@@ -85,6 +85,8 @@ export default function App() {
     setPhase(PHASES.test);
   };
 
+  const goToStart = () => setPhase(PHASES.intro);
+
   const finishTest = () => setPhase(PHASES.result);
 
   if (phase === PHASES.loading) {
@@ -112,7 +114,7 @@ export default function App() {
             <li>Each question has exactly 4 options.</li>
             <li>Results show right/wrong answers with explanations.</li>
           </ul>
-          <button onClick={startTest} className="mt-6 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700">Start Test</button>
+          <button onClick={startTest} className="mt-6 rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-5 py-3 font-semibold text-white shadow-soft-lg btn-smooth hover:from-brand-500 hover:to-brand-700">Start Test</button>
         </Panel>
       </MainLayout>
     );
@@ -137,7 +139,10 @@ export default function App() {
               );
             })}
           </div>
-          <button onClick={startTest} className="mt-6 rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700">Retake Test</button>
+          <div className="mt-6 flex gap-3">
+            <button onClick={startTest} className="rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700 btn-smooth">Retake Test</button>
+            <button onClick={goToStart} className="rounded-lg border border-slate-200 px-4 py-2 font-medium text-slate-900 hover:shadow-soft-lg btn-smooth">Go to Start</button>
+          </div>
         </Panel>
       </MainLayout>
     );
@@ -152,10 +157,10 @@ export default function App() {
             <button
               key={option.key}
               onClick={() => handleSelect(currentQuestion.id, option.key)}
-              className={`w-full rounded-lg border px-4 py-3 text-left transition ${
+              className={`w-full rounded-lg border px-4 py-3 text-left transition btn-smooth shadow-sm focus-ring ${
                 selectedOptionKey === option.key
-                  ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-200'
-                  : 'border-slate-300 bg-white hover:border-blue-300'
+                  ? 'border-brand-600 bg-brand-50 ring-2 ring-brand-200 transform scale-[1.01]'
+                  : 'border-slate-300 bg-white hover:border-brand-300 hover:shadow-md'
               }`}
             >
               <span className="font-semibold">{option.key}.</span> {option.text}
@@ -167,15 +172,15 @@ export default function App() {
           <button
             onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
             disabled={currentIndex === 0}
-            className="rounded-lg border border-slate-300 px-4 py-2 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-lg border border-slate-300 px-4 py-2 disabled:cursor-not-allowed disabled:opacity-40 btn-smooth"
           >
             Previous
           </button>
 
           {currentIndex === questions.length - 1 ? (
-            <button onClick={finishTest} className="rounded-lg bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700">Finish Test</button>
+            <button onClick={finishTest} className="rounded-lg bg-gradient-to-r from-green-500 to-green-600 px-4 py-2 font-medium text-white shadow-soft-lg btn-smooth hover:from-green-600">Finish Test</button>
           ) : (
-            <button onClick={() => setCurrentIndex((prev) => prev + 1)} className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700">Next</button>
+            <button onClick={() => setCurrentIndex((prev) => prev + 1)} className="rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-2 font-medium text-white shadow-soft-lg btn-smooth hover:from-brand-500">Next</button>
           )}
         </div>
       </Panel>
@@ -185,15 +190,15 @@ export default function App() {
 
 function MainLayout({ children }) {
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8">
-      <div className="mx-auto max-w-4xl">{children}</div>
+    <div className="min-h-screen app-bg px-4 py-12 flex items-start sm:items-center">
+      <div className="mx-auto w-full max-w-4xl">{children}</div>
     </div>
   );
 }
 
 function Panel({ title, children }) {
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-200 transform-gpu transition card-hover">
       <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
       <div className="mt-4">{children}</div>
     </div>
