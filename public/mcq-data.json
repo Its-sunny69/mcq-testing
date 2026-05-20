@@ -1,67 +1,126 @@
 {
-  "title": "Sample General Knowledge Test",
-  "description": "Replace this file with your own mcq-data.json. Keep max 50 questions.",
+  "title": "Beginner SQL Quiz",
+  "description": "A 10-question beginner-level SQL MCQ test.",
   "questions": [
     {
       "id": "q1",
-      "question": "Which planet is known as the Red Planet?",
+      "question": "What does SQL stand for?",
       "options": [
-        { "key": "A", "text": "Earth" },
-        { "key": "B", "text": "Mars" },
-        { "key": "C", "text": "Venus" },
-        { "key": "D", "text": "Jupiter" }
+        { "key": "A", "text": "Structured Query Language" },
+        { "key": "B", "text": "Simple Query List" },
+        { "key": "C", "text": "Standard Question Language" },
+        { "key": "D", "text": "Sequential Query Logic" }
       ],
-      "correctOptionKey": "B",
-      "explanation": "Mars appears red because of iron oxide (rust) on its surface."
-    }
-    ,
+      "correctOptionKey": "A",
+      "explanation": "SQL stands for Structured Query Language, which is used to work with relational databases."
+    },
     {
       "id": "q2",
-      "question": "What is the largest ocean on Earth?",
+      "question": "Which SQL command is used to retrieve data from a table?",
       "options": [
-        { "key": "A", "text": "Atlantic Ocean" },
-        { "key": "B", "text": "Indian Ocean" },
-        { "key": "C", "text": "Pacific Ocean" },
-        { "key": "D", "text": "Arctic Ocean" }
+        { "key": "A", "text": "GET" },
+        { "key": "B", "text": "SELECT" },
+        { "key": "C", "text": "OPEN" },
+        { "key": "D", "text": "READ" }
       ],
-      "correctOptionKey": "C",
-      "explanation": "The Pacific Ocean is the largest and deepest of Earth's oceanic divisions."
+      "correctOptionKey": "B",
+      "explanation": "SELECT is used to retrieve rows and columns from a table."
     },
     {
       "id": "q3",
-      "question": "Who wrote the play 'Romeo and Juliet'?",
+      "question": "Which SQL clause is used to filter rows?",
       "options": [
-        { "key": "A", "text": "Charles Dickens" },
-        { "key": "B", "text": "William Shakespeare" },
-        { "key": "C", "text": "Mark Twain" },
-        { "key": "D", "text": "Jane Austen" }
+        { "key": "A", "text": "ORDER BY" },
+        { "key": "B", "text": "GROUP BY" },
+        { "key": "C", "text": "WHERE" },
+        { "key": "D", "text": "JOIN" }
       ],
-      "correctOptionKey": "B",
-      "explanation": "'Romeo and Juliet' is a tragedy written by William Shakespeare early in his career."
+      "correctOptionKey": "C",
+      "explanation": "WHERE is used to filter the rows returned by a query."
     },
     {
       "id": "q4",
-      "question": "What is the chemical symbol for gold?",
+      "question": "Which SQL command is used to add new rows into a table?",
       "options": [
-        { "key": "A", "text": "Au" },
-        { "key": "B", "text": "Ag" },
-        { "key": "C", "text": "Fe" },
-        { "key": "D", "text": "Gd" }
+        { "key": "A", "text": "INSERT INTO" },
+        { "key": "B", "text": "ADD ROW" },
+        { "key": "C", "text": "NEW RECORD" },
+        { "key": "D", "text": "APPEND" }
       ],
       "correctOptionKey": "A",
-      "explanation": "The chemical symbol for gold comes from the Latin name 'Aurum'."
+      "explanation": "INSERT INTO adds one or more new rows to a table."
     },
     {
       "id": "q5",
-      "question": "Which country hosted the 2016 Summer Olympics?",
+      "question": "Which SQL command is used to change existing data in a table?",
       "options": [
-        { "key": "A", "text": "China" },
-        { "key": "B", "text": "Brazil" },
-        { "key": "C", "text": "United Kingdom" },
-        { "key": "D", "text": "Russia" }
+        { "key": "A", "text": "MODIFY" },
+        { "key": "B", "text": "UPDATE" },
+        { "key": "C", "text": "CHANGE" },
+        { "key": "D", "text": "REPLACE" }
       ],
       "correctOptionKey": "B",
-      "explanation": "The 2016 Summer Olympics were held in Rio de Janeiro, Brazil."
+      "explanation": "UPDATE is used to modify existing rows in a table."
+    },
+    {
+      "id": "q6",
+      "question": "Which SQL command is used to remove rows from a table?",
+      "options": [
+        { "key": "A", "text": "DROP" },
+        { "key": "B", "text": "DELETE" },
+        { "key": "C", "text": "REMOVE" },
+        { "key": "D", "text": "CLEAR" }
+      ],
+      "correctOptionKey": "B",
+      "explanation": "DELETE removes one or more rows from a table."
+    },
+    {
+      "id": "q7",
+      "question": "Which SQL keyword is used to sort the result set?",
+      "options": [
+        { "key": "A", "text": "SORT BY" },
+        { "key": "B", "text": "ORDER BY" },
+        { "key": "C", "text": "GROUP BY" },
+        { "key": "D", "text": "ARRANGE" }
+      ],
+      "correctOptionKey": "B",
+      "explanation": "ORDER BY sorts query results by one or more columns."
+    },
+    {
+      "id": "q8",
+      "question": "Which SQL function counts the number of rows?",
+      "options": [
+        { "key": "A", "text": "SUM()" },
+        { "key": "B", "text": "COUNT()" },
+        { "key": "C", "text": "TOTAL()" },
+        { "key": "D", "text": "NUMBER()" }
+      ],
+      "correctOptionKey": "B",
+      "explanation": "COUNT() returns the number of rows that match the query."
+    },
+    {
+      "id": "q9",
+      "question": "Which SQL statement is used to create a new table?",
+      "options": [
+        { "key": "A", "text": "MAKE TABLE" },
+        { "key": "B", "text": "CREATE TABLE" },
+        { "key": "C", "text": "NEW TABLE" },
+        { "key": "D", "text": "BUILD TABLE" }
+      ],
+      "correctOptionKey": "B",
+      "explanation": "CREATE TABLE defines a new table and its columns."
+    },
+    {
+      "id": "q10",
+      "question": "Which SQL clause is used to combine rows from two tables based on a related column?",
+      "options": [
+        { "key": "A", "text": "COMBINE" },
+        { "key": "B", "text": "MATCH" },
+        { "key": "C", "text": "JOIN" },
+        { "key": "D", "text": "LINK" }
+      ],
+      "correctOptionKey": "C",
+      "explanation": "JOIN combines rows from two tables using a related column."
     }
   ]
 }
