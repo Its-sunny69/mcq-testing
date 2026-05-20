@@ -1,0 +1,18 @@
+{
+  "title": "Sample General Knowledge Test",
+  "description": "Replace this file with your own mcq-data.json. Keep max 50 questions.",
+  "questions": [
+    {
+      "id": "q1",
+      "question": "Which planet is known as the Red Planet?",
+      "options": [
+        { "key": "A", "text": "Earth" },
+        { "key": "B", "text": "Mars" },
+        { "key": "C", "text": "Venus" },
+        { "key": "D", "text": "Jupiter" }
+      ],
+      "correctOptionKey": "B",
+      "explanation": "Mars appears red because of iron oxide (rust) on its surface."
+    }
+  ]
+}
