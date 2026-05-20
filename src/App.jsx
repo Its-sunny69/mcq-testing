@@ -99,6 +99,12 @@ export default function App() {
         </Panel>
       </MainLayout>
     );
+  const goToStart = () => setPhase(PHASES.intro);
+
+  const finishTest = () => setPhase(PHASES.result);
+
+  if (phase === PHASES.loading) {
+    return <MainLayout><Panel title="Loading">Loading your MCQ JSON file...</Panel></MainLayout>;
   }
 
   if (phase === PHASES.error) {
@@ -107,6 +113,8 @@ export default function App() {
         <Panel title="Configuration Error">
           <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-red-700">{error}</p>
           <p className="mt-4 text-sm text-slate-600">Expected JSON path: <code className="rounded bg-slate-100 px-2 py-1">/public/mcq-data.json</code></p>
+          <p className="text-red-700">{error}</p>
+          <p className="mt-2 text-sm text-slate-600">Expected JSON path: <code>/public/mcq-data.json</code></p>
         </Panel>
       </MainLayout>
     );
@@ -134,6 +142,14 @@ export default function App() {
             <p className="text-sm font-medium text-blue-900">Ready to begin your assessment?</p>
             <button onClick={startTest} className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-blue-700">Start Test</button>
           </div>
+        <Panel title={testData.title || 'MCQ Test'}>
+          <p className="text-slate-700">{testData.description || 'Read each question and choose one answer.'}</p>
+          <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-slate-700">
+            <li>Total questions: {questions.length}</li>
+            <li>Each question has exactly 4 options.</li>
+            <li>Results show right/wrong answers with explanations.</li>
+          </ul>
+          <button onClick={startTest} className="mt-6 rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-5 py-3 font-semibold text-white shadow-soft-lg btn-smooth hover:from-brand-500 hover:to-brand-700">Start Test</button>
         </Panel>
       </MainLayout>
     );
@@ -150,6 +166,9 @@ export default function App() {
           </div>
 
           <div className="mt-7 space-y-4">
+        <Panel title="Test Result">
+          <p className="text-lg font-semibold">Score: {scoreData.correct} / {scoreData.total}</p>
+          <div className="mt-6 space-y-4">
             {scoreData.details.map((item, idx) => {
               const correctOption = item.options.find((op) => op.key === item.correctOptionKey);
               const selectedOption = item.options.find((op) => op.key === item.selectedKey);
@@ -164,12 +183,21 @@ export default function App() {
                   <p className="mt-3 text-sm text-slate-700">Your answer: <span className="font-medium">{selectedOption ? `${selectedOption.key}. ${selectedOption.text}` : 'Not answered'}</span></p>
                   <p className="mt-1 text-sm text-slate-700">Correct answer: <span className="font-medium">{correctOption.key}. {correctOption.text}</span></p>
                   <p className="mt-2 rounded-lg bg-white/80 p-3 text-sm text-slate-700"><span className="font-semibold">Explanation:</span> {item.explanation}</p>
+                <div key={item.id} className={`rounded-xl border p-4 ${item.isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                  <p className="font-semibold">Q{idx + 1}. {item.question}</p>
+                  <p className="mt-2 text-sm">Your answer: <span className="font-medium">{selectedOption ? `${selectedOption.key}. ${selectedOption.text}` : 'Not answered'}</span></p>
+                  <p className="mt-1 text-sm">Correct answer: <span className="font-medium">{correctOption.key}. {correctOption.text}</span></p>
+                  <p className="mt-2 text-sm text-slate-700"><span className="font-medium">Explanation:</span> {item.explanation}</p>
                 </div>
               );
             })}
           </div>
 
           <button onClick={startTest} className="mt-8 rounded-lg bg-slate-900 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-slate-700">Retake Test</button>
+          <div className="mt-6 flex gap-3">
+            <button onClick={startTest} className="rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700 btn-smooth">Retake Test</button>
+            <button onClick={goToStart} className="rounded-lg border border-slate-200 px-4 py-2 font-medium text-slate-900 hover:shadow-soft-lg btn-smooth">Go to Start</button>
+          </div>
         </Panel>
       </MainLayout>
     );
@@ -190,6 +218,8 @@ export default function App() {
         </div>
 
         <p className="text-xl font-semibold text-slate-900">{currentQuestion.question}</p>
+      <Panel title={`Question ${currentIndex + 1} of ${questions.length}`}>
+        <p className="text-lg font-semibold text-slate-900">{currentQuestion.question}</p>
         <div className="mt-5 space-y-3">
           {currentQuestion.options.map((option) => (
             <button
@@ -203,6 +233,13 @@ export default function App() {
             >
               <span className="mr-1 font-bold text-slate-900">{option.key}.</span>
               <span className="text-slate-700">{option.text}</span>
+              className={`w-full rounded-lg border px-4 py-3 text-left transition btn-smooth shadow-sm focus-ring ${
+                selectedOptionKey === option.key
+                  ? 'border-brand-600 bg-brand-50 ring-2 ring-brand-200 transform scale-[1.01]'
+                  : 'border-slate-300 bg-white hover:border-brand-300 hover:shadow-md'
+              }`}
+            >
+              <span className="font-semibold">{option.key}.</span> {option.text}
             </button>
           ))}
         </div>
@@ -212,6 +249,11 @@ export default function App() {
             onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
             disabled={currentIndex === 0}
             className="rounded-lg border border-slate-300 px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+        <div className="mt-6 flex items-center justify-between">
+          <button
+            onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
+            disabled={currentIndex === 0}
+            className="rounded-lg border border-slate-300 px-4 py-2 disabled:cursor-not-allowed disabled:opacity-40 btn-smooth"
           >
             Previous
           </button>
@@ -220,6 +262,9 @@ export default function App() {
             <button onClick={finishTest} className="rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-emerald-700">Finish Test</button>
           ) : (
             <button onClick={() => setCurrentIndex((prev) => prev + 1)} className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-blue-700">Next</button>
+            <button onClick={finishTest} className="rounded-lg bg-gradient-to-r from-green-500 to-green-600 px-4 py-2 font-medium text-white shadow-soft-lg btn-smooth hover:from-green-600">Finish Test</button>
+          ) : (
+            <button onClick={() => setCurrentIndex((prev) => prev + 1)} className="rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-2 font-medium text-white shadow-soft-lg btn-smooth hover:from-brand-500">Next</button>
           )}
         </div>
       </Panel>
@@ -257,6 +302,8 @@ function StatCard({ label, value, highlight = false }) {
     <div className={`rounded-xl border px-4 py-3 ${highlight ? 'border-blue-200 bg-blue-50' : 'border-slate-200 bg-white'}`}>
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
       <p className={`mt-1 text-2xl font-bold ${highlight ? 'text-blue-700' : 'text-slate-900'}`}>{value}</p>
+    <div className="min-h-screen app-bg px-4 py-12 flex items-start sm:items-center">
+      <div className="mx-auto w-full max-w-4xl">{children}</div>
     </div>
   );
 }
@@ -265,6 +312,11 @@ function ShimmerBar() {
   return (
     <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-200">
       <div className="h-full w-1/3 animate-pulse rounded-full bg-blue-500" />
+function Panel({ title, children }) {
+  return (
+    <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-200 transform-gpu transition card-hover">
+      <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
+      <div className="mt-4">{children}</div>
     </div>
   );
 }
