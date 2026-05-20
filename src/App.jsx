@@ -17,17 +17,17 @@ function validateMcqData(raw) {
   if (raw.questions.length === 0) throw new Error('`questions` cannot be empty.');
   if (raw.questions.length > MAX_QUESTIONS) throw new Error(`Maximum ${MAX_QUESTIONS} questions allowed.`);
 
-  raw.questions.forEach((q, idx) => {
-    if (typeof q.id !== 'string' || !q.id.trim()) throw new Error(`Question ${idx + 1}: id is required.`);
-    if (typeof q.question !== 'string' || !q.question.trim()) throw new Error(`Question ${idx + 1}: question text is required.`);
-    if (!Array.isArray(q.options) || q.options.length !== 4) throw new Error(`Question ${idx + 1}: exactly 4 options are required.`);
-    q.options.forEach((opt, optionIdx) => {
-      if (typeof opt.key !== 'string' || !opt.key.trim()) throw new Error(`Question ${idx + 1}, option ${optionIdx + 1}: key is required.`);
-      if (typeof opt.text !== 'string' || !opt.text.trim()) throw new Error(`Question ${idx + 1}, option ${optionIdx + 1}: text is required.`);
+  raw.questions.forEach((question, index) => {
+    if (typeof question.id !== 'string' || !question.id.trim()) throw new Error(`Question ${index + 1}: id is required.`);
+    if (typeof question.question !== 'string' || !question.question.trim()) throw new Error(`Question ${index + 1}: question text is required.`);
+    if (!Array.isArray(question.options) || question.options.length !== 4) throw new Error(`Question ${index + 1}: exactly 4 options are required.`);
+    question.options.forEach((option, optionIndex) => {
+      if (typeof option.key !== 'string' || !option.key.trim()) throw new Error(`Question ${index + 1}, option ${optionIndex + 1}: key is required.`);
+      if (typeof option.text !== 'string' || !option.text.trim()) throw new Error(`Question ${index + 1}, option ${optionIndex + 1}: text is required.`);
     });
-    if (typeof q.correctOptionKey !== 'string' || !q.correctOptionKey.trim()) throw new Error(`Question ${idx + 1}: correctOptionKey is required.`);
-    if (!q.options.some((opt) => opt.key === q.correctOptionKey)) throw new Error(`Question ${idx + 1}: correctOptionKey must match one option key.`);
-    if (typeof q.explanation !== 'string' || !q.explanation.trim()) throw new Error(`Question ${idx + 1}: explanation is required.`);
+    if (typeof question.correctOptionKey !== 'string' || !question.correctOptionKey.trim()) throw new Error(`Question ${index + 1}: correctOptionKey is required.`);
+    if (!question.options.some((option) => option.key === question.correctOptionKey)) throw new Error(`Question ${index + 1}: correctOptionKey must match one option key.`);
+    if (typeof question.explanation !== 'string' || !question.explanation.trim()) throw new Error(`Question ${index + 1}: explanation is required.`);
   });
 
   return raw;
@@ -47,12 +47,13 @@ export default function App() {
         if (!response.ok) {
           throw new Error(`Could not load ${MCQ_FILE_PATH}. Please place your JSON file in /public as mcq-data.json.`);
         }
+
         const data = await response.json();
         const validData = validateMcqData(data);
         setTestData(validData);
         setPhase(PHASES.intro);
       } catch (err) {
-        setError(err.message || 'Unable to load test file.');
+        setError(err instanceof Error ? err.message : 'Unable to load test file.');
         setPhase(PHASES.error);
       }
     }
@@ -62,25 +63,23 @@ export default function App() {
 
   const questions = testData?.questions || [];
   const currentQuestion = questions[currentIndex];
-  const selectedOptionKey = answers[currentQuestion?.id];
+  const selectedOptionKey = currentQuestion ? answers[currentQuestion.id] : null;
 
   const scoreData = useMemo(() => {
     if (!questions.length) return { correct: 0, total: 0, details: [] };
-    const details = questions.map((q) => {
-      const selectedKey = answers[q.id] || null;
-      const isCorrect = selectedKey === q.correctOptionKey;
-      return { ...q, selectedKey, isCorrect };
+
+    const details = questions.map((question) => {
+      const selectedKey = answers[question.id] || null;
+      const isCorrect = selectedKey === question.correctOptionKey;
+      return { ...question, selectedKey, isCorrect };
     });
-    const correct = details.filter((d) => d.isCorrect).length;
+
+    const correct = details.filter((detail) => detail.isCorrect).length;
     return { correct, total: questions.length, details };
   }, [answers, questions]);
 
   const attemptedCount = Object.keys(answers).length;
   const progress = questions.length ? Math.round(((currentIndex + 1) / questions.length) * 100) : 0;
-
-  const handleSelect = (questionId, optionKey) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: optionKey }));
-  };
 
   const startTest = () => {
     setCurrentIndex(0);
@@ -89,32 +88,29 @@ export default function App() {
   };
 
   const finishTest = () => setPhase(PHASES.result);
+  const goToStart = () => setPhase(PHASES.intro);
+
+  const handleSelect = (questionId, optionKey) => {
+    setAnswers((previousAnswers) => ({ ...previousAnswers, [questionId]: optionKey }));
+  };
 
   if (phase === PHASES.loading) {
     return (
       <MainLayout>
-        <Panel title="Preparing your test">
-          <p className="text-slate-600">Loading questions from your JSON file...</p>
+        <Panel title="Loading test">
+          <p className="text-sm text-slate-600">Loading questions from /public/mcq-data.json...</p>
           <ShimmerBar />
         </Panel>
       </MainLayout>
     );
-  const goToStart = () => setPhase(PHASES.intro);
-
-  const finishTest = () => setPhase(PHASES.result);
-
-  if (phase === PHASES.loading) {
-    return <MainLayout><Panel title="Loading">Loading your MCQ JSON file...</Panel></MainLayout>;
   }
 
   if (phase === PHASES.error) {
     return (
       <MainLayout>
-        <Panel title="Configuration Error">
+        <Panel title="Configuration Error" subtitle="The MCQ data file could not be loaded">
           <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-red-700">{error}</p>
-          <p className="mt-4 text-sm text-slate-600">Expected JSON path: <code className="rounded bg-slate-100 px-2 py-1">/public/mcq-data.json</code></p>
-          <p className="text-red-700">{error}</p>
-          <p className="mt-2 text-sm text-slate-600">Expected JSON path: <code>/public/mcq-data.json</code></p>
+          <p className="mt-4 text-sm text-slate-600">Expected JSON path: /public/mcq-data.json</p>
         </Panel>
       </MainLayout>
     );
@@ -123,8 +119,10 @@ export default function App() {
   if (phase === PHASES.intro) {
     return (
       <MainLayout>
-        <Panel title={testData.title || 'MCQ Test Platform'} subtitle="Practice confidently with instant analysis">
-          <p className="text-slate-700">{testData.description || 'Choose the best answer for each question and review detailed explanations at the end.'}</p>
+        <Panel title={testData?.title || 'MCQ Test Platform'} subtitle="Practice confidently with instant feedback">
+          <p className="text-slate-700">
+            {testData?.description || 'Choose the best answer for each question and review detailed explanations at the end.'}
+          </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <StatCard label="Questions" value={questions.length} />
@@ -133,23 +131,17 @@ export default function App() {
           </div>
 
           <ul className="mt-6 space-y-2 text-sm text-slate-600">
-            <li>• Navigate between questions with Previous and Next.</li>
-            <li>• Submit when ready and review all correct/wrong answers.</li>
-            <li>• Every question includes explanation for learning.</li>
+            <li>Navigate between questions with Previous and Next.</li>
+            <li>Submit when ready and review all correct and wrong answers.</li>
+            <li>Every question includes an explanation for learning.</li>
           </ul>
 
-          <div className="mt-8 flex items-center justify-between rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
-            <p className="text-sm font-medium text-blue-900">Ready to begin your assessment?</p>
-            <button onClick={startTest} className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-blue-700">Start Test</button>
-          </div>
-        <Panel title={testData.title || 'MCQ Test'}>
-          <p className="text-slate-700">{testData.description || 'Read each question and choose one answer.'}</p>
-          <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-slate-700">
-            <li>Total questions: {questions.length}</li>
-            <li>Each question has exactly 4 options.</li>
-            <li>Results show right/wrong answers with explanations.</li>
-          </ul>
-          <button onClick={startTest} className="mt-6 rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-5 py-3 font-semibold text-white shadow-soft-lg btn-smooth hover:from-brand-500 hover:to-brand-700">Start Test</button>
+          <button
+            onClick={startTest}
+            className="mt-8 rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-5 py-3 font-semibold text-white shadow-soft-lg btn-smooth hover:from-brand-500 hover:to-brand-700"
+          >
+            Start Test
+          </button>
         </Panel>
       </MainLayout>
     );
@@ -166,41 +158,52 @@ export default function App() {
           </div>
 
           <div className="mt-7 space-y-4">
-        <Panel title="Test Result">
-          <p className="text-lg font-semibold">Score: {scoreData.correct} / {scoreData.total}</p>
-          <div className="mt-6 space-y-4">
-            {scoreData.details.map((item, idx) => {
-              const correctOption = item.options.find((op) => op.key === item.correctOptionKey);
-              const selectedOption = item.options.find((op) => op.key === item.selectedKey);
+            {scoreData.details.map((item, index) => {
+              const correctOption = item.options.find((option) => option.key === item.correctOptionKey);
+              const selectedOption = item.options.find((option) => option.key === item.selectedKey);
+
               return (
-                <div key={item.id} className={`rounded-2xl border p-5 ${item.isCorrect ? 'border-emerald-200 bg-emerald-50/70' : 'border-rose-200 bg-rose-50/70'}`}>
+                <div
+                  key={item.id}
+                  className={`rounded-2xl border p-5 ${item.isCorrect ? 'border-emerald-200 bg-emerald-50/70' : 'border-rose-200 bg-rose-50/70'}`}
+                >
                   <div className="flex items-start justify-between gap-4">
-                    <p className="font-semibold text-slate-900">Q{idx + 1}. {item.question}</p>
+                    <p className="font-semibold text-slate-900">
+                      Q{index + 1}. {item.question}
+                    </p>
                     <span className={`rounded-full px-3 py-1 text-xs font-bold ${item.isCorrect ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                       {item.isCorrect ? 'Correct' : 'Wrong'}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm text-slate-700">Your answer: <span className="font-medium">{selectedOption ? `${selectedOption.key}. ${selectedOption.text}` : 'Not answered'}</span></p>
-                  <p className="mt-1 text-sm text-slate-700">Correct answer: <span className="font-medium">{correctOption.key}. {correctOption.text}</span></p>
-                  <p className="mt-2 rounded-lg bg-white/80 p-3 text-sm text-slate-700"><span className="font-semibold">Explanation:</span> {item.explanation}</p>
-                <div key={item.id} className={`rounded-xl border p-4 ${item.isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                  <p className="font-semibold">Q{idx + 1}. {item.question}</p>
-                  <p className="mt-2 text-sm">Your answer: <span className="font-medium">{selectedOption ? `${selectedOption.key}. ${selectedOption.text}` : 'Not answered'}</span></p>
-                  <p className="mt-1 text-sm">Correct answer: <span className="font-medium">{correctOption.key}. {correctOption.text}</span></p>
-                  <p className="mt-2 text-sm text-slate-700"><span className="font-medium">Explanation:</span> {item.explanation}</p>
+                  <p className="mt-3 text-sm text-slate-700">
+                    Your answer: <span className="font-medium">{selectedOption ? `${selectedOption.key}. ${selectedOption.text}` : 'Not answered'}</span>
+                  </p>
+                  <p className="mt-1 text-sm text-slate-700">
+                    Correct answer: <span className="font-medium">{correctOption.key}. {correctOption.text}</span>
+                  </p>
+                  <p className="mt-2 rounded-lg bg-white/80 p-3 text-sm text-slate-700">
+                    <span className="font-semibold">Explanation:</span> {item.explanation}
+                  </p>
                 </div>
               );
             })}
           </div>
 
-          <button onClick={startTest} className="mt-8 rounded-lg bg-slate-900 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-slate-700">Retake Test</button>
           <div className="mt-6 flex gap-3">
-            <button onClick={startTest} className="rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700 btn-smooth">Retake Test</button>
-            <button onClick={goToStart} className="rounded-lg border border-slate-200 px-4 py-2 font-medium text-slate-900 hover:shadow-soft-lg btn-smooth">Go to Start</button>
+            <button onClick={startTest} className="rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700 btn-smooth">
+              Retake Test
+            </button>
+            <button onClick={goToStart} className="rounded-lg border border-slate-200 px-4 py-2 font-medium text-slate-900 hover:shadow-soft-lg btn-smooth">
+              Go to Start
+            </button>
           </div>
         </Panel>
       </MainLayout>
     );
+  }
+
+  if (!currentQuestion) {
+    return null;
   }
 
   return (
@@ -212,59 +215,49 @@ export default function App() {
             <span>{progress}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
-            <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500" style={{ width: `${progress}%` }} />
+            <div className="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-600" style={{ width: `${progress}%` }} />
           </div>
-          <p className="mt-2 text-sm text-slate-600">Answered: {attemptedCount} / {questions.length}</p>
+          <p className="mt-2 text-sm text-slate-600">
+            Answered: {attemptedCount} / {questions.length}
+          </p>
         </div>
 
         <p className="text-xl font-semibold text-slate-900">{currentQuestion.question}</p>
-      <Panel title={`Question ${currentIndex + 1} of ${questions.length}`}>
-        <p className="text-lg font-semibold text-slate-900">{currentQuestion.question}</p>
+
         <div className="mt-5 space-y-3">
           {currentQuestion.options.map((option) => (
             <button
               key={option.key}
               onClick={() => handleSelect(currentQuestion.id, option.key)}
-              className={`w-full rounded-xl border px-4 py-3 text-left transition ${
+              className={`w-full rounded-xl border px-4 py-3 text-left transition btn-smooth shadow-sm focus-ring ${
                 selectedOptionKey === option.key
-                  ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-200'
-                  : 'border-slate-300 bg-white hover:border-blue-300 hover:bg-slate-50'
-              }`}
-            >
-              <span className="mr-1 font-bold text-slate-900">{option.key}.</span>
-              <span className="text-slate-700">{option.text}</span>
-              className={`w-full rounded-lg border px-4 py-3 text-left transition btn-smooth shadow-sm focus-ring ${
-                selectedOptionKey === option.key
-                  ? 'border-brand-600 bg-brand-50 ring-2 ring-brand-200 transform scale-[1.01]'
+                  ? 'border-brand-600 bg-brand-50 ring-2 ring-brand-200'
                   : 'border-slate-300 bg-white hover:border-brand-300 hover:shadow-md'
               }`}
             >
-              <span className="font-semibold">{option.key}.</span> {option.text}
+              <span className="mr-2 font-bold text-slate-900">{option.key}.</span>
+              <span className="text-slate-700">{option.text}</span>
             </button>
           ))}
         </div>
 
-        <div className="mt-7 flex items-center justify-between">
-          <button
-            onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-            disabled={currentIndex === 0}
-            className="rounded-lg border border-slate-300 px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
         <div className="mt-6 flex items-center justify-between">
           <button
-            onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
+            onClick={() => setCurrentIndex((previousIndex) => Math.max(0, previousIndex - 1))}
             disabled={currentIndex === 0}
-            className="rounded-lg border border-slate-300 px-4 py-2 disabled:cursor-not-allowed disabled:opacity-40 btn-smooth"
+            className="rounded-lg border border-slate-300 px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Previous
           </button>
 
           {currentIndex === questions.length - 1 ? (
-            <button onClick={finishTest} className="rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-emerald-700">Finish Test</button>
+            <button onClick={finishTest} className="rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-2 font-semibold text-white shadow-soft-lg btn-smooth hover:from-brand-500 hover:to-brand-700">
+              Finish Test
+            </button>
           ) : (
-            <button onClick={() => setCurrentIndex((prev) => prev + 1)} className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-blue-700">Next</button>
-            <button onClick={finishTest} className="rounded-lg bg-gradient-to-r from-green-500 to-green-600 px-4 py-2 font-medium text-white shadow-soft-lg btn-smooth hover:from-green-600">Finish Test</button>
-          ) : (
-            <button onClick={() => setCurrentIndex((prev) => prev + 1)} className="rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-2 font-medium text-white shadow-soft-lg btn-smooth hover:from-brand-500">Next</button>
+            <button onClick={() => setCurrentIndex((previousIndex) => previousIndex + 1)} className="rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-2 font-semibold text-white shadow-soft-lg btn-smooth hover:from-brand-500 hover:to-brand-700">
+              Next
+            </button>
           )}
         </div>
       </Panel>
@@ -274,10 +267,10 @@ export default function App() {
 
 function MainLayout({ children }) {
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,_#dbeafe_0%,_#f8fafc_40%,_#f1f5f9_100%)] px-4 py-10">
+    <div className="min-h-screen app-bg px-4 py-12">
       <div className="mx-auto mb-6 flex max-w-5xl items-center justify-between rounded-2xl border border-white/70 bg-white/70 px-5 py-3 shadow-sm backdrop-blur">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">Testing Platform</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-600">Testing Platform</p>
           <h1 className="text-lg font-bold text-slate-900">MCQ Assessment Studio</h1>
         </div>
         <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">Single JSON Powered</span>
@@ -299,11 +292,9 @@ function Panel({ title, subtitle, children }) {
 
 function StatCard({ label, value, highlight = false }) {
   return (
-    <div className={`rounded-xl border px-4 py-3 ${highlight ? 'border-blue-200 bg-blue-50' : 'border-slate-200 bg-white'}`}>
+    <div className={`rounded-xl border px-4 py-3 ${highlight ? 'border-brand-200 bg-brand-50' : 'border-slate-200 bg-white'}`}>
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${highlight ? 'text-blue-700' : 'text-slate-900'}`}>{value}</p>
-    <div className="min-h-screen app-bg px-4 py-12 flex items-start sm:items-center">
-      <div className="mx-auto w-full max-w-4xl">{children}</div>
+      <p className={`mt-1 text-2xl font-bold ${highlight ? 'text-brand-700' : 'text-slate-900'}`}>{value}</p>
     </div>
   );
 }
@@ -311,12 +302,7 @@ function StatCard({ label, value, highlight = false }) {
 function ShimmerBar() {
   return (
     <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-200">
-      <div className="h-full w-1/3 animate-pulse rounded-full bg-blue-500" />
-function Panel({ title, children }) {
-  return (
-    <div className="rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-200 transform-gpu transition card-hover">
-      <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
-      <div className="mt-4">{children}</div>
+      <div className="h-full w-1/3 animate-pulse rounded-full bg-brand-500" />
     </div>
   );
 }
