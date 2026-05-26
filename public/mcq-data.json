@@ -1,126 +1,186 @@
 {
-  "title": "Beginner SQL Quiz",
-  "description": "A 10-question beginner-level SQL MCQ test.",
+  "title": "Intermediate SQL Quiz",
+  "description": "A 15-question intermediate-level SQL MCQ test.",
   "questions": [
     {
       "id": "q1",
-      "question": "What does SQL stand for?",
+      "question": "Which JOIN returns all rows from the left table and matching rows from the right table?",
       "options": [
-        { "key": "A", "text": "Structured Query Language" },
-        { "key": "B", "text": "Simple Query List" },
-        { "key": "C", "text": "Standard Question Language" },
-        { "key": "D", "text": "Sequential Query Logic" }
+        { "key": "A", "text": "INNER JOIN" },
+        { "key": "B", "text": "LEFT JOIN" },
+        { "key": "C", "text": "RIGHT JOIN" },
+        { "key": "D", "text": "FULL JOIN" }
       ],
-      "correctOptionKey": "A",
-      "explanation": "SQL stands for Structured Query Language, which is used to work with relational databases."
+      "correctOptionKey": "B",
+      "explanation": "LEFT JOIN (or LEFT OUTER JOIN) returns all rows from the left table and matching rows from the right table; non-matching right rows are NULL."
     },
     {
       "id": "q2",
-      "question": "Which SQL command is used to retrieve data from a table?",
+      "question": "Which clause filters groups after aggregation has been applied?",
       "options": [
-        { "key": "A", "text": "GET" },
-        { "key": "B", "text": "SELECT" },
-        { "key": "C", "text": "OPEN" },
-        { "key": "D", "text": "READ" }
+        { "key": "A", "text": "WHERE" },
+        { "key": "B", "text": "HAVING" },
+        { "key": "C", "text": "GROUP BY" },
+        { "key": "D", "text": "ORDER BY" }
       ],
       "correctOptionKey": "B",
-      "explanation": "SELECT is used to retrieve rows and columns from a table."
+      "explanation": "HAVING is used to filter the results of GROUP BY aggregation; WHERE cannot filter aggregated values."
     },
     {
       "id": "q3",
-      "question": "Which SQL clause is used to filter rows?",
+      "question": "What does ROW_NUMBER() OVER (PARTITION BY col ORDER BY col2) produce?",
       "options": [
-        { "key": "A", "text": "ORDER BY" },
-        { "key": "B", "text": "GROUP BY" },
-        { "key": "C", "text": "WHERE" },
-        { "key": "D", "text": "JOIN" }
+        { "key": "A", "text": "A rank with gaps for tied values" },
+        { "key": "B", "text": "Sequential row numbers within each partition" },
+        { "key": "C", "text": "Cumulative sum per partition" },
+        { "key": "D", "text": "Number of distinct values per partition" }
       ],
-      "correctOptionKey": "C",
-      "explanation": "WHERE is used to filter the rows returned by a query."
+      "correctOptionKey": "B",
+      "explanation": "ROW_NUMBER() assigns sequential numbers starting at 1 within each partition defined by PARTITION BY, ordered by ORDER BY."
     },
     {
       "id": "q4",
-      "question": "Which SQL command is used to add new rows into a table?",
+      "question": "Which index type in PostgreSQL is commonly used for fast full-text search?",
       "options": [
-        { "key": "A", "text": "INSERT INTO" },
-        { "key": "B", "text": "ADD ROW" },
-        { "key": "C", "text": "NEW RECORD" },
-        { "key": "D", "text": "APPEND" }
+        { "key": "A", "text": "B-Tree" },
+        { "key": "B", "text": "Hash" },
+        { "key": "C", "text": "GIN" },
+        { "key": "D", "text": "BRIN" }
       ],
-      "correctOptionKey": "A",
-      "explanation": "INSERT INTO adds one or more new rows to a table."
+      "correctOptionKey": "C",
+      "explanation": "GIN (Generalized Inverted Index) is commonly used for full-text search and array containment queries in PostgreSQL."
     },
     {
       "id": "q5",
-      "question": "Which SQL command is used to change existing data in a table?",
+      "question": "Which statement makes all changes in the current transaction permanent?",
       "options": [
-        { "key": "A", "text": "MODIFY" },
-        { "key": "B", "text": "UPDATE" },
-        { "key": "C", "text": "CHANGE" },
-        { "key": "D", "text": "REPLACE" }
+        { "key": "A", "text": "ROLLBACK" },
+        { "key": "B", "text": "COMMIT" },
+        { "key": "C", "text": "SAVEPOINT" },
+        { "key": "D", "text": "BEGIN" }
       ],
       "correctOptionKey": "B",
-      "explanation": "UPDATE is used to modify existing rows in a table."
+      "explanation": "COMMIT makes all changes within the current transaction permanent; ROLLBACK undoes them."
     },
     {
       "id": "q6",
-      "question": "Which SQL command is used to remove rows from a table?",
+      "question": "Which isolation level prevents dirty reads but can allow non-repeatable reads?",
       "options": [
-        { "key": "A", "text": "DROP" },
-        { "key": "B", "text": "DELETE" },
-        { "key": "C", "text": "REMOVE" },
-        { "key": "D", "text": "CLEAR" }
+        { "key": "A", "text": "READ UNCOMMITTED" },
+        { "key": "B", "text": "READ COMMITTED" },
+        { "key": "C", "text": "REPEATABLE READ" },
+        { "key": "D", "text": "SERIALIZABLE" }
       ],
       "correctOptionKey": "B",
-      "explanation": "DELETE removes one or more rows from a table."
+      "explanation": "READ COMMITTED prevents dirty reads but can still allow non-repeatable reads where a row changes between reads."
     },
     {
       "id": "q7",
-      "question": "Which SQL keyword is used to sort the result set?",
+      "question": "Which SQL construct is typically used to write recursive queries (e.g., hierarchical data)?",
       "options": [
-        { "key": "A", "text": "SORT BY" },
-        { "key": "B", "text": "ORDER BY" },
-        { "key": "C", "text": "GROUP BY" },
-        { "key": "D", "text": "ARRANGE" }
+        { "key": "A", "text": "Subquery in SELECT" },
+        { "key": "B", "text": "CTE with RECURSIVE" },
+        { "key": "C", "text": "Window function" },
+        { "key": "D", "text": "TEMP TABLE" }
       ],
       "correctOptionKey": "B",
-      "explanation": "ORDER BY sorts query results by one or more columns."
+      "explanation": "Common Table Expressions (CTEs) with the RECURSIVE keyword are used to express recursive queries such as traversing trees."
     },
     {
       "id": "q8",
-      "question": "Which SQL function counts the number of rows?",
+      "question": "Which operator is best when you only need to test whether a subquery returns any rows?",
       "options": [
-        { "key": "A", "text": "SUM()" },
-        { "key": "B", "text": "COUNT()" },
-        { "key": "C", "text": "TOTAL()" },
-        { "key": "D", "text": "NUMBER()" }
+        { "key": "A", "text": "IN" },
+        { "key": "B", "text": "EXISTS" },
+        { "key": "C", "text": "ANY" },
+        { "key": "D", "text": "ALL" }
       ],
       "correctOptionKey": "B",
-      "explanation": "COUNT() returns the number of rows that match the query."
+      "explanation": "EXISTS returns true as soon as the subquery returns any row and is often more efficient for existence checks."
     },
     {
       "id": "q9",
-      "question": "Which SQL statement is used to create a new table?",
+      "question": "What does a UNIQUE constraint ensure on a column or set of columns?",
       "options": [
-        { "key": "A", "text": "MAKE TABLE" },
-        { "key": "B", "text": "CREATE TABLE" },
-        { "key": "C", "text": "NEW TABLE" },
-        { "key": "D", "text": "BUILD TABLE" }
+        { "key": "A", "text": "No NULL values allowed" },
+        { "key": "B", "text": "Values are unique across rows" },
+        { "key": "C", "text": "Column is indexed automatically" },
+        { "key": "D", "text": "Values are ordered" }
       ],
       "correctOptionKey": "B",
-      "explanation": "CREATE TABLE defines a new table and its columns."
+      "explanation": "A UNIQUE constraint guarantees that no two rows have the same value(s) for the constrained column(s)."
     },
     {
       "id": "q10",
-      "question": "Which SQL clause is used to combine rows from two tables based on a related column?",
+      "question": "When should you prefer UNION ALL over UNION?",
       "options": [
-        { "key": "A", "text": "COMBINE" },
-        { "key": "B", "text": "MATCH" },
-        { "key": "C", "text": "JOIN" },
-        { "key": "D", "text": "LINK" }
+        { "key": "A", "text": "When you need to remove duplicates" },
+        { "key": "B", "text": "When duplicates are acceptable and you want better performance" },
+        { "key": "C", "text": "When combining different column types" },
+        { "key": "D", "text": "When ordering results across sets" }
+      ],
+      "correctOptionKey": "B",
+      "explanation": "UNION ALL does not remove duplicates and is faster than UNION because it skips the duplicate-elimination step."
+    },
+    {
+      "id": "q11",
+      "question": "Which clause is evaluated first and therefore can reduce rows before groups are formed?",
+      "options": [
+        { "key": "A", "text": "HAVING" },
+        { "key": "B", "text": "GROUP BY" },
+        { "key": "C", "text": "WHERE" },
+        { "key": "D", "text": "ORDER BY" }
       ],
       "correctOptionKey": "C",
-      "explanation": "JOIN combines rows from two tables using a related column."
+      "explanation": "WHERE is applied before GROUP BY and removes rows prior to aggregation, reducing the work done by GROUP BY."
+    },
+    {
+      "id": "q12",
+      "question": "Which is the correct way to test for NULL values in SQL?",
+      "options": [
+        { "key": "A", "text": "column = NULL" },
+        { "key": "B", "text": "column IS NULL" },
+        { "key": "C", "text": "column != NULL" },
+        { "key": "D", "text": "column IS NOT = NULL" }
+      ],
+      "correctOptionKey": "B",
+      "explanation": "SQL uses IS NULL and IS NOT NULL to test for NULLs; equality comparisons with NULL do not behave as expected."
+    },
+    {
+      "id": "q13",
+      "question": "What is denormalization in database design?",
+      "options": [
+        { "key": "A", "text": "Splitting tables into smaller tables" },
+        { "key": "B", "text": "Adding redundant data to reduce joins and improve read performance" },
+        { "key": "C", "text": "Removing all indexes" },
+        { "key": "D", "text": "Enforcing stronger foreign key constraints" }
+      ],
+      "correctOptionKey": "B",
+      "explanation": "Denormalization intentionally adds redundancy to reduce expensive joins and speed up read queries at the cost of write complexity."
+    },
+    {
+      "id": "q14",
+      "question": "Which SQL command modifies a table's schema, for example adding a new column?",
+      "options": [
+        { "key": "A", "text": "ALTER TABLE" },
+        { "key": "B", "text": "UPDATE TABLE" },
+        { "key": "C", "text": "MODIFY TABLE" },
+        { "key": "D", "text": "CHANGE TABLE" }
+      ],
+      "correctOptionKey": "A",
+      "explanation": "ALTER TABLE is used to change the structure of a table, such as adding or dropping columns or constraints."
+    },
+    {
+      "id": "q15",
+      "question": "What is a covering index?",
+      "options": [
+        { "key": "A", "text": "An index that stores full table data" },
+        { "key": "B", "text": "An index that includes all columns needed to satisfy a query" },
+        { "key": "C", "text": "An index that covers only primary key columns" },
+        { "key": "D", "text": "An index that automatically compresses data" }
+      ],
+      "correctOptionKey": "B",
+      "explanation": "A covering index contains all columns required by a query, allowing the database to answer the query using only the index without touching the table."
     }
   ]
 }
