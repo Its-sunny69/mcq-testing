@@ -53,6 +53,8 @@ Keep real credentials in a local-only file named `.env.local` at the project roo
 
 This uses free Gmail SMTP, so you do not need a paid email service. Create a free Gmail account, turn on 2-step verification, then create an App Password in your Google Account security settings. Use that app password as `SMTP_PASS` inside `.env.local`.
 
+For Vercel, deploy the app as a Vite static site and keep the email handler in `api/send-result.js`. Vercel will expose that path as `/api/send-result` automatically.
+
 Set these environment variables before running the backend:
 
 - `SMTP_PORT`
