@@ -44,3 +44,22 @@ npm run dev
 ```
 
 Then open the local URL printed by Vite.
+
+## Email result delivery
+
+When the user finishes a test, the app sends the result in the background to `ranjeetyadav31638@gmail.com` through the backend API at `/api/send-result`.
+
+Keep real credentials in a local-only file named `.env.local` at the project root. Do not commit that file. The tracked `.env.example` stays as a template only.
+
+This uses free Gmail SMTP, so you do not need a paid email service. Create a free Gmail account, turn on 2-step verification, then create an App Password in your Google Account security settings. Use that app password as `SMTP_PASS` inside `.env.local`.
+
+Set these environment variables before running the backend:
+
+- `SMTP_PORT`
+- `SMTP_USER`
+- `SMTP_PASS`
+- `SMTP_HOST` - optional, defaults to `smtp.gmail.com`
+- `SMTP_FROM` - optional, defaults to `SMTP_USER`
+- `RESULT_RECIPIENT_EMAIL` - optional, defaults to `ranjeetyadav31638@gmail.com`
+
+In development, `npm run dev` starts both Vite and the email backend.
