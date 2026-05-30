@@ -1,4 +1,4 @@
-export async function sendTestResultEmail(payload) {
+export async function sendTestActivityEmail(payload) {
   try {
     if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
       const queued = navigator.sendBeacon('/api/send-result', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
@@ -22,3 +22,5 @@ export async function sendTestResultEmail(payload) {
     return false;
   }
 }
+
+export const sendTestResultEmail = sendTestActivityEmail;

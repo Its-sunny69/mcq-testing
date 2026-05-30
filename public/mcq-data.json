@@ -1,186 +1,186 @@
 {
-  "title": "Intermediate SQL Quiz",
-  "description": "A 15-question intermediate-level SQL MCQ test.",
+  "title": "Intermediate SQL Quiz — Query Practice",
+  "description": "A 15-question intermediate SQL test with query-based items to practice real-world SQL reasoning.",
   "questions": [
     {
       "id": "q1",
-      "question": "Which JOIN returns all rows from the left table and matching rows from the right table?",
+      "question": "Given table orders(order_id, customer_id, amount) and customers(customer_id, name), which query returns customers who have placed at least one order?\n\nSELECT c.customer_id, c.name FROM customers c ...",
       "options": [
-        { "key": "A", "text": "INNER JOIN" },
-        { "key": "B", "text": "LEFT JOIN" },
-        { "key": "C", "text": "RIGHT JOIN" },
-        { "key": "D", "text": "FULL JOIN" }
+        { "key": "A", "text": "LEFT JOIN orders o ON o.customer_id = c.customer_id WHERE o.order_id IS NOT NULL" },
+        { "key": "B", "text": "INNER JOIN orders o ON o.customer_id = c.customer_id" },
+        { "key": "C", "text": "RIGHT JOIN orders o ON o.customer_id = c.customer_id" },
+        { "key": "D", "text": "CROSS JOIN orders o" }
       ],
       "correctOptionKey": "B",
-      "explanation": "LEFT JOIN (or LEFT OUTER JOIN) returns all rows from the left table and matching rows from the right table; non-matching right rows are NULL."
+      "explanation": "An INNER JOIN returns only customers that have matching orders; LEFT JOIN with IS NOT NULL is more verbose but INNER JOIN is the standard answer."
     },
     {
       "id": "q2",
-      "question": "Which clause filters groups after aggregation has been applied?",
+      "question": "Which of the following queries returns the top 3 highest-amount orders per customer in PostgreSQL?\n\nAssume orders(order_id, customer_id, amount).",
       "options": [
-        { "key": "A", "text": "WHERE" },
-        { "key": "B", "text": "HAVING" },
-        { "key": "C", "text": "GROUP BY" },
-        { "key": "D", "text": "ORDER BY" }
+        { "key": "A", "text": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY amount DESC) rn FROM orders) t WHERE rn <= 3" },
+        { "key": "B", "text": "SELECT * FROM orders ORDER BY amount DESC LIMIT 3" },
+        { "key": "C", "text": "SELECT customer_id, MAX(amount) FROM orders GROUP BY customer_id LIMIT 3" },
+        { "key": "D", "text": "SELECT DISTINCT ON (customer_id) * FROM orders ORDER BY customer_id, amount" }
       ],
-      "correctOptionKey": "B",
-      "explanation": "HAVING is used to filter the results of GROUP BY aggregation; WHERE cannot filter aggregated values."
+      "correctOptionKey": "A",
+      "explanation": "Using ROW_NUMBER() partitioned by customer and filtering rn <= 3 returns top 3 per customer. DISTINCT ON is useful but option D as written doesn't pick top 3."
     },
     {
       "id": "q3",
-      "question": "What does ROW_NUMBER() OVER (PARTITION BY col ORDER BY col2) produce?",
+      "question": "What does this query return?\n\nSELECT department, COUNT(*) FROM employees WHERE salary > 50000 GROUP BY department HAVING COUNT(*) > 5;",
       "options": [
-        { "key": "A", "text": "A rank with gaps for tied values" },
-        { "key": "B", "text": "Sequential row numbers within each partition" },
-        { "key": "C", "text": "Cumulative sum per partition" },
-        { "key": "D", "text": "Number of distinct values per partition" }
+        { "key": "A", "text": "Departments with more than 5 employees whose salary is > 50000" },
+        { "key": "B", "text": "Departments with average salary > 50000" },
+        { "key": "C", "text": "All departments with employees and their counts" },
+        { "key": "D", "text": "Employees with salary > 50000" }
       ],
-      "correctOptionKey": "B",
-      "explanation": "ROW_NUMBER() assigns sequential numbers starting at 1 within each partition defined by PARTITION BY, ordered by ORDER BY."
+      "correctOptionKey": "A",
+      "explanation": "WHERE filters rows before aggregation; HAVING then filters groups where the count of filtered rows is > 5."
     },
     {
       "id": "q4",
-      "question": "Which index type in PostgreSQL is commonly used for fast full-text search?",
+      "question": "Consider table sales(id, sale_date, amount). Which index will best speed up queries that filter by sale_date range and order by amount?",
       "options": [
-        { "key": "A", "text": "B-Tree" },
-        { "key": "B", "text": "Hash" },
-        { "key": "C", "text": "GIN" },
-        { "key": "D", "text": "BRIN" }
+        { "key": "A", "text": "CREATE INDEX idx1 ON sales(sale_date)" },
+        { "key": "B", "text": "CREATE INDEX idx2 ON sales(amount)" },
+        { "key": "C", "text": "CREATE INDEX idx3 ON sales(sale_date, amount)" },
+        { "key": "D", "text": "CREATE INDEX idx4 ON sales(amount, sale_date)" }
       ],
       "correctOptionKey": "C",
-      "explanation": "GIN (Generalized Inverted Index) is commonly used for full-text search and array containment queries in PostgreSQL."
+      "explanation": "An index starting with sale_date then amount supports range filter on sale_date and ordering by amount for that range."
     },
     {
       "id": "q5",
-      "question": "Which statement makes all changes in the current transaction permanent?",
+      "question": "Given products(id, category, price), which query finds categories with the highest average price?",
       "options": [
-        { "key": "A", "text": "ROLLBACK" },
-        { "key": "B", "text": "COMMIT" },
-        { "key": "C", "text": "SAVEPOINT" },
-        { "key": "D", "text": "BEGIN" }
+        { "key": "A", "text": "SELECT category FROM products GROUP BY category ORDER BY AVG(price) DESC LIMIT 1" },
+        { "key": "B", "text": "SELECT category, AVG(price) FROM products WHERE price = (SELECT MAX(price) FROM products)" },
+        { "key": "C", "text": "SELECT DISTINCT category FROM products ORDER BY AVG(price) DESC" },
+        { "key": "D", "text": "SELECT category FROM products GROUP BY category HAVING AVG(price) = MAX(price)" }
       ],
-      "correctOptionKey": "B",
-      "explanation": "COMMIT makes all changes within the current transaction permanent; ROLLBACK undoes them."
+      "correctOptionKey": "A",
+      "explanation": "Ordering groups by AVG(price) and taking LIMIT 1 returns the category with highest average price."
     },
     {
       "id": "q6",
-      "question": "Which isolation level prevents dirty reads but can allow non-repeatable reads?",
+      "question": "Which query correctly uses a window function to compute a running total of amount ordered by created_at?\n\nTable: orders(id, created_at, amount)",
       "options": [
-        { "key": "A", "text": "READ UNCOMMITTED" },
-        { "key": "B", "text": "READ COMMITTED" },
-        { "key": "C", "text": "REPEATABLE READ" },
-        { "key": "D", "text": "SERIALIZABLE" }
+        { "key": "A", "text": "SELECT id, created_at, amount, SUM(amount) OVER (ORDER BY created_at) AS running_total FROM orders" },
+        { "key": "B", "text": "SELECT id, created_at, amount, SUM(amount) FROM orders ORDER BY created_at" },
+        { "key": "C", "text": "SELECT id, created_at, amount, SUM(amount) OVER (PARTITION BY id ORDER BY created_at) FROM orders" },
+        { "key": "D", "text": "SELECT id, created_at, amount, ROW_NUMBER() OVER (ORDER BY created_at) FROM orders" }
       ],
-      "correctOptionKey": "B",
-      "explanation": "READ COMMITTED prevents dirty reads but can still allow non-repeatable reads where a row changes between reads."
+      "correctOptionKey": "A",
+      "explanation": "SUM() as a window function with ORDER BY created_at computes a running total across rows in chronological order."
     },
     {
       "id": "q7",
-      "question": "Which SQL construct is typically used to write recursive queries (e.g., hierarchical data)?",
+      "question": "Which statement about transactions is correct?",
       "options": [
-        { "key": "A", "text": "Subquery in SELECT" },
-        { "key": "B", "text": "CTE with RECURSIVE" },
-        { "key": "C", "text": "Window function" },
-        { "key": "D", "text": "TEMP TABLE" }
+        { "key": "A", "text": "READ UNCOMMITTED prevents phantom reads" },
+        { "key": "B", "text": "SERIALIZABLE is the strictest isolation level and avoids anomalies" },
+        { "key": "C", "text": "COMMIT rolls back the transaction" },
+        { "key": "D", "text": "SAVEPOINT discards the transaction" }
       ],
       "correctOptionKey": "B",
-      "explanation": "Common Table Expressions (CTEs) with the RECURSIVE keyword are used to express recursive queries such as traversing trees."
+      "explanation": "SERIALIZABLE is the strongest standard isolation level, preventing many concurrency anomalies. COMMIT makes changes permanent."
     },
     {
       "id": "q8",
-      "question": "Which operator is best when you only need to test whether a subquery returns any rows?",
+      "question": "Which query is the most efficient way to check existence of at least one row matching a condition?",
       "options": [
-        { "key": "A", "text": "IN" },
-        { "key": "B", "text": "EXISTS" },
-        { "key": "C", "text": "ANY" },
-        { "key": "D", "text": "ALL" }
+        { "key": "A", "text": "SELECT COUNT(*) > 0 FROM table WHERE condition" },
+        { "key": "B", "text": "SELECT EXISTS (SELECT 1 FROM table WHERE condition)" },
+        { "key": "C", "text": "SELECT * FROM table WHERE condition LIMIT 1" },
+        { "key": "D", "text": "SELECT TOP 1 1 FROM table WHERE condition" }
       ],
       "correctOptionKey": "B",
-      "explanation": "EXISTS returns true as soon as the subquery returns any row and is often more efficient for existence checks."
+      "explanation": "EXISTS is optimized to stop at first match and is more efficient than counting all rows. (Note: TOP syntax is dialect-specific.)"
     },
     {
       "id": "q9",
-      "question": "What does a UNIQUE constraint ensure on a column or set of columns?",
+      "question": "Given orders(id, order_date, amount), which query removes duplicate orders keeping the one with highest amount per (id) in PostgreSQL?",
       "options": [
-        { "key": "A", "text": "No NULL values allowed" },
-        { "key": "B", "text": "Values are unique across rows" },
-        { "key": "C", "text": "Column is indexed automatically" },
-        { "key": "D", "text": "Values are ordered" }
+        { "key": "A", "text": "DELETE FROM orders o USING (SELECT id, MAX(amount) AS max_amount FROM orders GROUP BY id) m WHERE o.id = m.id AND o.amount < m.max_amount" },
+        { "key": "B", "text": "DELETE FROM orders WHERE id NOT IN (SELECT MAX(id) FROM orders GROUP BY id)" },
+        { "key": "C", "text": "TRUNCATE TABLE orders" },
+        { "key": "D", "text": "DROP TABLE orders" }
       ],
-      "correctOptionKey": "B",
-      "explanation": "A UNIQUE constraint guarantees that no two rows have the same value(s) for the constrained column(s)."
+      "correctOptionKey": "A",
+      "explanation": "Using DELETE ... USING with a grouped subquery allows deleting rows with amount less than the max per id."
     },
     {
       "id": "q10",
-      "question": "When should you prefer UNION ALL over UNION?",
+      "question": "Which query correctly pivots month sales into columns for months Jan and Feb (simplified)?\n\nTable: sales(month, amount)",
       "options": [
-        { "key": "A", "text": "When you need to remove duplicates" },
-        { "key": "B", "text": "When duplicates are acceptable and you want better performance" },
-        { "key": "C", "text": "When combining different column types" },
-        { "key": "D", "text": "When ordering results across sets" }
+        { "key": "A", "text": "SELECT SUM(CASE WHEN month='Jan' THEN amount ELSE 0 END) AS Jan, SUM(CASE WHEN month='Feb' THEN amount ELSE 0 END) AS Feb FROM sales" },
+        { "key": "B", "text": "SELECT month, SUM(amount) FROM sales GROUP BY month PIVOT" },
+        { "key": "C", "text": "SELECT * FROM sales PIVOT (SUM(amount) FOR month IN ('Jan','Feb'))" },
+        { "key": "D", "text": "SELECT month, amount FROM sales WHERE month IN ('Jan','Feb')" }
       ],
-      "correctOptionKey": "B",
-      "explanation": "UNION ALL does not remove duplicates and is faster than UNION because it skips the duplicate-elimination step."
+      "correctOptionKey": "A",
+      "explanation": "Using conditional aggregation with CASE is a portable way to pivot months into columns. PIVOT syntax is dialect-specific."
     },
     {
       "id": "q11",
-      "question": "Which clause is evaluated first and therefore can reduce rows before groups are formed?",
+      "question": "Which index strategy reduces index size while keeping fast lookups for low-cardinality boolean column active?",
       "options": [
-        { "key": "A", "text": "HAVING" },
-        { "key": "B", "text": "GROUP BY" },
-        { "key": "C", "text": "WHERE" },
-        { "key": "D", "text": "ORDER BY" }
+        { "key": "A", "text": "Create a btree index on active" },
+        { "key": "B", "text": "Create a partial index where active = true" },
+        { "key": "C", "text": "Create a unique index on active" },
+        { "key": "D", "text": "Do not index at all" }
       ],
-      "correctOptionKey": "C",
-      "explanation": "WHERE is applied before GROUP BY and removes rows prior to aggregation, reducing the work done by GROUP BY."
+      "correctOptionKey": "B",
+      "explanation": "Partial indexes (e.g., WHERE active = true) reduce index size and are efficient when most rows are false."
     },
     {
       "id": "q12",
-      "question": "Which is the correct way to test for NULL values in SQL?",
+      "question": "What is the result of this query?\n\nWITH RECURSIVE t AS (SELECT 1 AS n UNION ALL SELECT n+1 FROM t WHERE n < 3) SELECT * FROM t;",
       "options": [
-        { "key": "A", "text": "column = NULL" },
-        { "key": "B", "text": "column IS NULL" },
-        { "key": "C", "text": "column != NULL" },
-        { "key": "D", "text": "column IS NOT = NULL" }
+        { "key": "A", "text": "1,2,3 rows" },
+        { "key": "B", "text": "An infinite loop" },
+        { "key": "C", "text": "An error because recursive CTEs are not allowed" },
+        { "key": "D", "text": "Only 1 row" }
       ],
-      "correctOptionKey": "B",
-      "explanation": "SQL uses IS NULL and IS NOT NULL to test for NULLs; equality comparisons with NULL do not behave as expected."
+      "correctOptionKey": "A",
+      "explanation": "Recursive CTE generates rows 1 through 3 because the recursion stops at n < 3 when n becomes 3."
     },
     {
       "id": "q13",
-      "question": "What is denormalization in database design?",
+      "question": "Which query avoids a full table scan when searching a JSONB column for a top-level key 'status' = 'active' in PostgreSQL?\n\nTable: items(data JSONB)",
       "options": [
-        { "key": "A", "text": "Splitting tables into smaller tables" },
-        { "key": "B", "text": "Adding redundant data to reduce joins and improve read performance" },
-        { "key": "C", "text": "Removing all indexes" },
-        { "key": "D", "text": "Enforcing stronger foreign key constraints" }
+        { "key": "A", "text": "SELECT * FROM items WHERE data->>'status' = 'active'" },
+        { "key": "B", "text": "CREATE INDEX idx ON items ((data->>'status')) ; SELECT * FROM items WHERE data->>'status' = 'active'" },
+        { "key": "C", "text": "SELECT * FROM items WHERE data @> '{\"status\":\"active\"}'" },
+        { "key": "D", "text": "Both B and C with appropriate index" }
       ],
       "correctOptionKey": "B",
-      "explanation": "Denormalization intentionally adds redundancy to reduce expensive joins and speed up read queries at the cost of write complexity."
+      "explanation": "Creating a functional index on (data->>'status') allows equality lookups without full scan. JSONB containment @> can also be indexed but B is the direct solution."
     },
     {
       "id": "q14",
-      "question": "Which SQL command modifies a table's schema, for example adding a new column?",
+      "question": "Which of the following is true about ANALYZE / VACUUM (Postgres)?",
       "options": [
-        { "key": "A", "text": "ALTER TABLE" },
-        { "key": "B", "text": "UPDATE TABLE" },
-        { "key": "C", "text": "MODIFY TABLE" },
-        { "key": "D", "text": "CHANGE TABLE" }
+        { "key": "A", "text": "ANALYZE updates table statistics used by planner; VACUUM reclaims space from deleted rows" },
+        { "key": "B", "text": "ANALYZE deletes rows; VACUUM updates statistics" },
+        { "key": "C", "text": "Both commands rebuild indexes" },
+        { "key": "D", "text": "Neither affects query planning" }
       ],
       "correctOptionKey": "A",
-      "explanation": "ALTER TABLE is used to change the structure of a table, such as adding or dropping columns or constraints."
+      "explanation": "ANALYZE gathers statistics for the planner; VACUUM reclaims storage from dead tuples. Both are important for performance."
     },
     {
       "id": "q15",
-      "question": "What is a covering index?",
+      "question": "You need to safely add a NOT NULL column with default to a large table without long locks. Which approach is best?",
       "options": [
-        { "key": "A", "text": "An index that stores full table data" },
-        { "key": "B", "text": "An index that includes all columns needed to satisfy a query" },
-        { "key": "C", "text": "An index that covers only primary key columns" },
-        { "key": "D", "text": "An index that automatically compresses data" }
+        { "key": "A", "text": "ALTER TABLE ADD COLUMN new_col TYPE DEFAULT x NOT NULL" },
+        { "key": "B", "text": "Add column nullable, backfill in batches, then ALTER TABLE SET NOT NULL" },
+        { "key": "C", "text": "Create new table with column and copy data" },
+        { "key": "D", "text": "Drop the table and recreate with new column" }
       ],
       "correctOptionKey": "B",
-      "explanation": "A covering index contains all columns required by a query, allowing the database to answer the query using only the index without touching the table."
+      "explanation": "Adding the column as nullable and backfilling in controlled batches then marking NOT NULL avoids long exclusive locks on large tables."
     }
   ]
 }

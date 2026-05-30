@@ -1,14 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MCQ_FILE_PATH, PHASES, validateMcqData } from '../lib/mcq';
-import { sendTestResultEmail } from '../lib/resultEmail';
+import { sendTestActivityEmail } from '../lib/resultEmail';
 
 export function useMcqTest() {
   const [phase, setPhase] = useState(PHASES.loading);
   const [testData, setTestData] = useState(null);
+  const [defaultTestData, setDefaultTestData] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [error, setError] = useState('');
+  const [uploadMessage, setUploadMessage] = useState('');
+  const [activeSource, setActiveSource] = useState('default');
   const hasReportedResultRef = useRef(false);
+
+  const resetQuizState = () => {
+    setCurrentIndex(0);
+    setAnswers({});
+    hasReportedResultRef.current = false;
+  };
 
   useEffect(() => {
     async function loadMcqFile() {
@@ -21,6 +30,8 @@ export function useMcqTest() {
         const data = await response.json();
         const validData = validateMcqData(data);
         setTestData(validData);
+        setDefaultTestData(validData);
+        setActiveSource('default');
         setPhase(PHASES.intro);
       } catch (caughtError) {
         setError(caughtError instanceof Error ? caughtError.message : 'Unable to load test file.');
@@ -30,6 +41,33 @@ export function useMcqTest() {
 
     loadMcqFile();
   }, []);
+
+  const loadUploadedFile = async (file) => {
+    if (!file) return;
+
+    setUploadMessage('');
+
+    try {
+      const fileText = await file.text();
+      const parsedData = JSON.parse(fileText);
+      const validData = validateMcqData(parsedData);
+
+      setTestData(validData);
+      setActiveSource(file.name);
+      resetQuizState();
+      setPhase(PHASES.intro);
+      setUploadMessage(`Loaded ${file.name}. Your uploaded quiz is ready.`);
+    } catch (caughtError) {
+      if (defaultTestData) {
+        setTestData(defaultTestData);
+        setActiveSource('default');
+      }
+
+      setUploadMessage(caughtError instanceof Error ? caughtError.message : 'Unable to read the uploaded JSON file. Falling back to the default quiz.');
+      resetQuizState();
+      setPhase(PHASES.intro);
+    }
+  };
 
   const questions = testData?.questions || [];
   const currentQuestion = questions[currentIndex];
@@ -52,9 +90,21 @@ export function useMcqTest() {
   const progress = questions.length ? Math.round(((currentIndex + 1) / questions.length) * 100) : 0;
 
   const startTest = () => {
-    setCurrentIndex(0);
-    setAnswers({});
-    hasReportedResultRef.current = false;
+    resetQuizState();
+
+    void sendTestActivityEmail({
+      eventType: 'started',
+      recipientEmail: 'ranjeetyadav31638@gmail.com',
+      testTitle: testData?.title || 'MCQ Test Platform',
+      testDescription: testData?.description || '',
+      timestamp: new Date().toISOString(),
+      questions: questions.map((question) => ({
+        id: question.id,
+        question: question.question,
+        explanation: question.explanation
+      }))
+    });
+
     setPhase(PHASES.test);
   };
 
@@ -62,7 +112,8 @@ export function useMcqTest() {
     if (!hasReportedResultRef.current) {
       hasReportedResultRef.current = true;
 
-      void sendTestResultEmail({
+      void sendTestActivityEmail({
+        eventType: 'submitted',
         recipientEmail: 'ranjeetyadav31638@gmail.com',
         testTitle: testData?.title || 'MCQ Test Platform',
         testDescription: testData?.description || '',
@@ -100,7 +151,10 @@ export function useMcqTest() {
     attemptedCount,
     progress,
     error,
+    uploadMessage,
+    activeSource,
     startTest,
+    loadUploadedFile,
     finishTest,
     goToStart,
     goPrevious,

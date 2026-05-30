@@ -1,0 +1,30 @@
+{
+  "title": "Example Custom Quiz",
+  "description": "Use this file as a template for uploading your own MCQ quiz.",
+  "questions": [
+    {
+      "id": "example-1",
+      "question": "Which tag is used to create a paragraph in HTML?",
+      "options": [
+        { "key": "A", "text": "<div>" },
+        { "key": "B", "text": "<p>" },
+        { "key": "C", "text": "<span>" },
+        { "key": "D", "text": "<section>" }
+      ],
+      "correctOptionKey": "B",
+      "explanation": "The <p> tag defines a paragraph in HTML."
+    },
+    {
+      "id": "example-2",
+      "question": "What does JSON stand for?",
+      "options": [
+        { "key": "A", "text": "Java Source Object Notation" },
+        { "key": "B", "text": "JavaScript Object Notation" },
+        { "key": "C", "text": "Joined Script Output Name" },
+        { "key": "D", "text": "Java Styled Object Network" }
+      ],
+      "correctOptionKey": "B",
+      "explanation": "JSON stands for JavaScript Object Notation."
+    }
+  ]
+}

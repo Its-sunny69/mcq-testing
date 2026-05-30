@@ -35,7 +35,10 @@ export default function App() {
           description={quiz.testData?.description || 'Choose the best answer for each question and review detailed explanations at the end.'}
           questionCount={quiz.questions.length}
           maxQuestions={MAX_QUESTIONS}
+          uploadMessage={quiz.uploadMessage}
+          activeSource={quiz.activeSource}
           onStart={quiz.startTest}
+          onUploadFile={quiz.loadUploadedFile}
         />
       </AppShell>
     );

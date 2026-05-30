@@ -4,7 +4,7 @@ import cors from 'cors';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildResultEmailPayload, createTransporter } from './email.js';
+import { buildActivityEmailPayload, createTransporter } from './email.js';
 
 dotenv.config({ path: ['.env.local', '.env'] });
 
@@ -15,9 +15,13 @@ app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
 app.post('/api/send-result', async (request, response) => {
-  const { recipientEmail: targetEmail, testTitle, testDescription, scoreData, timestamp, attemptedCount, questions } = request.body || {};
+  const { eventType, recipientEmail: targetEmail, testTitle, testDescription, scoreData, timestamp, attemptedCount, questions } = request.body || {};
 
-  if (!scoreData || typeof scoreData.correct !== 'number' || typeof scoreData.total !== 'number' || !Array.isArray(scoreData.details)) {
+  if (eventType === 'started') {
+    if (!Array.isArray(questions)) {
+      return response.status(400).json({ error: 'Invalid start payload.' });
+    }
+  } else if (!scoreData || typeof scoreData.correct !== 'number' || typeof scoreData.total !== 'number' || !Array.isArray(scoreData.details)) {
     return response.status(400).json({ error: 'Invalid score payload.' });
   }
 
@@ -26,7 +30,8 @@ app.post('/api/send-result', async (request, response) => {
     return response.status(503).json({ error: 'SMTP configuration is missing.' });
   }
 
-  const emailPayload = buildResultEmailPayload({
+  const emailPayload = buildActivityEmailPayload({
+    eventType,
     recipientEmail: targetEmail,
     testTitle,
     testDescription,

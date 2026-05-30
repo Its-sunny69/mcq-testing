@@ -1,4 +1,5 @@
 export const MCQ_FILE_PATH = '/mcq-data.json';
+export const EXAMPLE_MCQ_FILE_PATH = '/example-mcq.json';
 export const MAX_QUESTIONS = 50;
 
 export const PHASES = {

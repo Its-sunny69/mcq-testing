@@ -1,6 +1,7 @@
 import { Panel } from './Panel';
 import { StatCard } from './StatCard';
 import { ProgressBar } from './ProgressBar';
+import { EXAMPLE_MCQ_FILE_PATH } from '../lib/mcq';
 
 export function LoadingState() {
   return (
@@ -20,10 +21,39 @@ export function ErrorState({ error }) {
   );
 }
 
-export function IntroScreen({ title, description, questionCount, maxQuestions, onStart }) {
+export function IntroScreen({ title, description, questionCount, maxQuestions, uploadMessage, activeSource, onStart, onUploadFile }) {
   return (
     <Panel title={title} subtitle="Practice confidently with instant feedback">
       <p className="text-slate-700">{description}</p>
+
+      <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
+        <p className="text-sm font-semibold text-slate-900">If you want to give test of your own quiz upload the json file.</p>
+        <p className="mt-1 text-sm text-slate-600">When no file is uploaded, the default quiz stays selected automatically.</p>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <label className="inline-flex cursor-pointer items-center justify-center rounded-lg bg-slate-900 px-4 py-2 font-medium text-white transition hover:bg-slate-700 btn-smooth">
+            Upload JSON file
+            <input
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(event) => {
+                onUploadFile(event.target.files?.[0] || null);
+                event.target.value = '';
+              }}
+            />
+          </label>
+
+          <a href={EXAMPLE_MCQ_FILE_PATH} download="example.json" className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-100 btn-smooth">
+            Download example.json
+          </a>
+        </div>
+
+        <p className="mt-3 text-sm text-slate-600">
+          Current quiz source: <span className="font-medium text-slate-900">{activeSource === 'default' ? 'Default questions' : activeSource}</span>
+        </p>
+        {uploadMessage ? <p className="mt-2 text-sm text-brand-700">{uploadMessage}</p> : null}
+      </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         <StatCard label="Questions" value={questionCount} />
